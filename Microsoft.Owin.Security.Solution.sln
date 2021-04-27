@@ -7,7 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Owin.Security.WeC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Owin.Security.QQ", "Microsoft.Owin.Security.QQ\Microsoft.Owin.Security.QQ.csproj", "{2B96497A-C363-473A-BDD4-CC390B7ADB96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Owin.Security.WeChat.Core", "Microsoft.Owin.Security.WeChat.Core\Microsoft.Owin.Security.WeChat.Core.csproj", "{5566B80D-56BC-4840-9D59-B61614E09FF0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.Authentication.WeChat", "Microsoft.AspNetCore.Authentication.WeChat\Microsoft.AspNetCore.Authentication.WeChat.csproj", "{B4BE5B36-8EDC-4927-AA00-03C43728D1F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{B330A4B7-F5B9-4319-9193-9D992A86FC69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenApiTest", "OpenApiTest\OpenApiTest.csproj", "{8256D077-2109-473C-A26E-E2D438968F10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,13 +27,20 @@ Global
 		{2B96497A-C363-473A-BDD4-CC390B7ADB96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B96497A-C363-473A-BDD4-CC390B7ADB96}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B96497A-C363-473A-BDD4-CC390B7ADB96}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5566B80D-56BC-4840-9D59-B61614E09FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5566B80D-56BC-4840-9D59-B61614E09FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5566B80D-56BC-4840-9D59-B61614E09FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5566B80D-56BC-4840-9D59-B61614E09FF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4BE5B36-8EDC-4927-AA00-03C43728D1F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4BE5B36-8EDC-4927-AA00-03C43728D1F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4BE5B36-8EDC-4927-AA00-03C43728D1F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4BE5B36-8EDC-4927-AA00-03C43728D1F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8256D077-2109-473C-A26E-E2D438968F10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8256D077-2109-473C-A26E-E2D438968F10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8256D077-2109-473C-A26E-E2D438968F10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8256D077-2109-473C-A26E-E2D438968F10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8256D077-2109-473C-A26E-E2D438968F10} = {B330A4B7-F5B9-4319-9193-9D992A86FC69}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AD883D0E-904B-45D4-8EA7-E2AE4BD1B57A}

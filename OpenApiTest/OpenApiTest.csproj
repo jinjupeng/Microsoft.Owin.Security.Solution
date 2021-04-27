@@ -8,5 +8,7 @@
     <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.WeChat\Microsoft.AspNetCore.Authentication.WeChat.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://docs.gradle.com/enterprise/admin/schema/gradle-enterprise-config-schema-2.json" /></VisualStudio></ProjectExtensions>
+
 
 </Project>

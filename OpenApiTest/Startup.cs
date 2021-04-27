@@ -44,15 +44,12 @@ namespace OpenApiTest
                     o.ClientId = Configuration["WeChat:AppId"];
                     o.ClientSecret = Configuration["WeChat:AppSecret"];
                     o.CallbackPath = "/api/wechat/signin"; // 回调接口可以自定义
-                    //o.AuthorizationEndpoint += "?prompt=consent"; // Hack so we always get a refresh token, it only comes on the first authorization response
-                    //o.AccessType = "offline";
+                    o.WeChatScope = "snsapi_login";
                     o.SaveTokens = true;
                     o.Events = new OAuthEvents()
                     {
                         OnRemoteFailure = HandleOnRemoteFailure
                     };
-                    o.ClaimActions.MapJsonSubKey("urn:wechat:image", "image", "url");
-                    o.ClaimActions.Remove(ClaimTypes.GivenName);
                 });
             services.AddControllers();
         }

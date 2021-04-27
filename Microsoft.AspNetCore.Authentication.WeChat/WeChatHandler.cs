@@ -20,9 +20,16 @@ namespace Microsoft.AspNetCore.Authentication.WeChat
             : base(options, logger, encoder, clock)
         { }
 
+        /// <summary>
+        /// 根据回调获取登录信息
+        /// </summary>
+        /// <param name="identity"></param>
+        /// <param name="properties"></param>
+        /// <param name="tokens"></param>
+        /// <returns></returns>
         protected override async Task<AuthenticationTicket> CreateTicketAsync(
-            ClaimsIdentity identity,
-            AuthenticationProperties properties,
+            ClaimsIdentity identity, 
+            AuthenticationProperties properties, 
             OAuthTokenResponse tokens)
         {
             // Get the WeChat user
@@ -50,31 +57,36 @@ namespace Microsoft.AspNetCore.Authentication.WeChat
             //}
         }
 
-        // TODO: Abstract this properties override pattern into the base class?
+        /// <summary>
+        /// 扫码登录获取code值
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <param name="redirectUri"></param>
+        /// <returns></returns>
         protected override string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
         {
             // WeChat Identity Platform Manual:
             // https://cloud.tencent.com/developer/article/1447723
+            // https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
 
 
             var queryStrings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
+                { "appid", Options.ClientId },
+                { "redirect_uri", redirectUri },
                 { "response_type", "code" },
-                { "client_id", Options.ClientId },
-                { "client_secret", Options.ClientSecret},
                 { "grant_type","authorization_code"},
-                { "redirect_uri", redirectUri }
             };
 
             AddQueryString(queryStrings, properties, WeChatChallengeProperties.ScopeKey, FormatScope, Options.Scope);
-            AddQueryString(queryStrings, properties, WeChatChallengeProperties.AccessTypeKey, Options.AccessType);
-            AddQueryString(queryStrings, properties, WeChatChallengeProperties.ApprovalPromptKey);
-            AddQueryString(queryStrings, properties, WeChatChallengeProperties.PromptParameterKey);
-            AddQueryString(queryStrings, properties, WeChatChallengeProperties.LoginHintKey);
-            AddQueryString(queryStrings, properties, WeChatChallengeProperties.IncludeGrantedScopesKey, v => v?.ToString().ToLower(), (bool?)null);
+            //AddQueryString(queryStrings, properties, WeChatChallengeProperties.AccessTypeKey, Options.AccessType);
+            //AddQueryString(queryStrings, properties, WeChatChallengeProperties.ApprovalPromptKey);
+            //AddQueryString(queryStrings, properties, WeChatChallengeProperties.PromptParameterKey);
+            //AddQueryString(queryStrings, properties, WeChatChallengeProperties.LoginHintKey);
+            //AddQueryString(queryStrings, properties, WeChatChallengeProperties.IncludeGrantedScopesKey, v => v?.ToString().ToLower(), (bool?)null);
 
             var state = Options.StateDataFormat.Protect(properties);
-            queryStrings.Add("state", state);
+            queryStrings.Add("state", state + "#wechat_redirect");
 
             var authorizationEndpoint = QueryHelpers.AddQueryString(Options.AuthorizationEndpoint, queryStrings);
             return authorizationEndpoint;

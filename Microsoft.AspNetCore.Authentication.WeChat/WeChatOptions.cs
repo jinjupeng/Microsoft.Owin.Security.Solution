@@ -14,13 +14,11 @@ namespace Microsoft.AspNetCore.Authentication.WeChat
         /// </summary>
         public WeChatOptions()
         {
-            CallbackPath = new PathString("/signin-wechatconnect");
+            CallbackPath = new PathString("/signin-wechat"); // 回调接口，可自定义
             AuthorizationEndpoint = WeChatDefaults.AuthorizationEndpoint;
             TokenEndpoint = WeChatDefaults.TokenEndpoint;
             UserInformationEndpoint = WeChatDefaults.UserInformationEndpoint;
-            Scope.Add("openid");
-            Scope.Add("profile");
-            Scope.Add("email");
+            Scope.Add("snsapi_login"); // 微信暂时只支持这一种
 
             ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             ClaimActions.MapJsonKey(ClaimTypes.Name, "name");

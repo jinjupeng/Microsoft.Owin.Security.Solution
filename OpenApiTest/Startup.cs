@@ -38,13 +38,14 @@ namespace OpenApiTest
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(o => o.LoginPath = new PathString("/login"))
 
-                // You must first create an app with Google and add its ID and Secret to your user-secrets.
+                // You must first create an app with WeChat and add its ID and Secret to your user-secrets.
                 .AddWeChat(o =>
                 {
-                    o.ClientId = Configuration["wechat:clientid"];
-                    o.ClientSecret = Configuration["wechat:clientsecret"];
-                    o.AuthorizationEndpoint += "?prompt=consent"; // Hack so we always get a refresh token, it only comes on the first authorization response
-                    o.AccessType = "offline";
+                    o.ClientId = Configuration["WeChat:AppId"];
+                    o.ClientSecret = Configuration["WeChat:AppSecret"];
+                    o.CallbackPath = "/api/wechat/signin"; // 回调接口可以自定义
+                    //o.AuthorizationEndpoint += "?prompt=consent"; // Hack so we always get a refresh token, it only comes on the first authorization response
+                    //o.AccessType = "offline";
                     o.SaveTokens = true;
                     o.Events = new OAuthEvents()
                     {

@@ -43,8 +43,7 @@ namespace OpenApiTest
                 {
                     o.ClientId = Configuration["WeChat:AppId"];
                     o.ClientSecret = Configuration["WeChat:AppSecret"];
-                    o.CallbackPath = "/api/wechat/signin"; // 回调接口可以自定义
-                    o.WeChatScope = "snsapi_login";
+                    o.WeChatScope = "snsapi_login"; // 微信PC端登录
                     o.SaveTokens = true;
                     o.Events = new OAuthEvents()
                     {

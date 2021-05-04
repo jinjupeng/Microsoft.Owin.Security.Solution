@@ -17,6 +17,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNetCore.Authentication.WeChat
 {
+    /// <summary>
+    /// 支持OAuth2的认证处理器的实现
+    /// https://mp.weixin.qq.com/s/t0PsP0hZ5HSZtitzLODkQw
+    /// </summary>
     public class WeChatHandler : OAuthHandler<WeChatOptions>
     {
         public WeChatHandler(IOptionsMonitor<WeChatOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
@@ -117,7 +121,7 @@ namespace Microsoft.AspNetCore.Authentication.WeChat
                 { "appid", Options.ClientId },
                 { "redirect_uri", redirectUri },
                 { "response_type", "code" },
-                { "grant_type","authorization_code"},
+                //{ "grant_type","authorization_code"},
                 { "scope", Options.WeChatScope },
                 { "state", $"{state}{Options.StateAddition}"}
             };
@@ -210,6 +214,22 @@ namespace Microsoft.AspNetCore.Authentication.WeChat
         //    //    return new AuthenticationTicket(context.Principal, context.Properties, Scheme.Name);
         //    //}
         //}
+
+        /*
+         * AuthenticationProperties
+         * 认证属性是一个简单的类似于字典一样的对象，用于存取关于认证会话的各项属性。其中，最核心的是两个字典属性：
+         * Items ： Dictionary<string,string>型字典
+Parameters：Dictionary<string,object>型字典，用于在handler之间共享对象，不可序列化或者持久化
+         * 
+         * AuthenticationTicket
+         * 认证票据封装了用户身份信息和一些配套的认证属性，如过期信息、是否允许刷新等
+         * 
+         * AuthenticationResult
+         * 认证结果有三种，分别是：
+         * 没有结果：暂时无法确定最终认定结果，留待其他认证处理器程序处理。
+         * 认证成功：需要提供认证票据。
+         * 认证失败：需要指定失败消息。
+         */
 
         /// <summary>
         /// OAuth第四步，获取用户信息

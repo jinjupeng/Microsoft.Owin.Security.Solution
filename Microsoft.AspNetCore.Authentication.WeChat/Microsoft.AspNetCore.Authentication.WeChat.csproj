@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/jinjupeng/Microsoft.Owin.Security.Solution</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,7 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>597e9c13-5531-43c0-8167-81c4624344ef</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="2.10.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.WeChat\Microsoft.AspNetCore.Authentication.WeChat.csproj" />

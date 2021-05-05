@@ -1,235 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNetCore.Authentication.WeChat
 {
     /// <summary>
     /// 支持OAuth2的认证处理器的实现
-    /// https://mp.weixin.qq.com/s/t0PsP0hZ5HSZtitzLODkQw
     /// </summary>
-    public class WeChatHandler : OAuthHandler<WeChatOptions>
+    internal class WeChatHandler : OAuthHandler<WeChatOptions>
     {
         public WeChatHandler(IOptionsMonitor<WeChatOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock)
         { }
 
-        protected override async Task<HandleRequestResult> HandleRemoteAuthenticateAsync()
-        {
-            var query = Request.Query;
-
-            var error = query["error"];
-            if (!StringValues.IsNullOrEmpty(error))
-            {
-                var failureMessage = new StringBuilder();
-                failureMessage.Append(error);
-                var errorDescription = query["error_description"];
-                if (!StringValues.IsNullOrEmpty(errorDescription))
-                {
-                    failureMessage.Append(";Description=").Append(errorDescription);
-                }
-                var errorUri = query["error_uri"];
-                if (!StringValues.IsNullOrEmpty(errorUri))
-                {
-                    failureMessage.Append(";Uri=").Append(errorUri);
-                }
-                return HandleRequestResult.Fail(failureMessage.ToString());
-            }
-
-            var code = query["code"];
-            var state = query["state"];
-            var oauthState = query["oauthstate"];
-
-            AuthenticationProperties properties = Options.StateDataFormat.Unprotect(oauthState);
-
-            if (state != Options.StateAddition || properties == null)
-            {
-                return HandleRequestResult.Fail("The oauth state was missing or invalid.");
-            }
-
-            // OAuth2 10.12 CSRF
-            if (!ValidateCorrelationId(properties))
-            {
-                return HandleRequestResult.Fail("Correlation failed.");
-            }
-
-            if (StringValues.IsNullOrEmpty(code))
-            {
-                return HandleRequestResult.Fail("Code was not found.");
-            }
-
-            //获取tokens
-            var tokens = await ExchangeCodeAsync(code, BuildRedirectUri(Options.CallbackPath));
-
-            var identity = new ClaimsIdentity(Options.ClaimsIssuer);
-
-            AuthenticationTicket ticket = null;
-            if (Options.WeChatScope == Options.InfoScope || Options.WeChatScope == Options.LoginScope)
-            {
-                //获取用户信息
-                ticket = await CreateTicketAsync(identity, properties, tokens);
-            }
-            else if(Options.WeChatScope == Options.BaseScope)
-            {
-                //不获取信息，只使用openid
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, tokens.TokenType, ClaimValueTypes.String, Options.ClaimsIssuer));
-                ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), properties, Options.AuthenticationScheme);
-            }
-
-            if (ticket != null)
-            {
-                return HandleRequestResult.Success(ticket);
-            }
-            else
-            {
-                return HandleRequestResult.Fail("Failed to retrieve user information from remote server.");
-            }
-        }
-
-
-        /// <summary>
-        /// 扫码登录第一步：获取code值
-        /// </summary>
-        /// <param name="properties"></param>
-        /// <param name="redirectUri"></param>
-        /// <returns></returns>
-        protected override string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
-        {
-            // WeChat Identity Platform Manual:
-            // https://cloud.tencent.com/developer/article/1447723
-            // https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
-            // https://www.jb51.net/article/91575.htm
-
-            // 加密OAuth状态
-            var state = Options.StateDataFormat.Protect(properties);
-
-            var queryStrings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "appid", Options.ClientId },
-                { "redirect_uri", redirectUri },
-                { "response_type", "code" },
-                //{ "grant_type","authorization_code"},
-                { "scope", Options.WeChatScope },
-                { "state", $"{state}{Options.StateAddition}"}
-            };
-
-            var authorizationEndpoint = QueryHelpers.AddQueryString(Options.AuthorizationEndpoint, queryStrings);
-            return authorizationEndpoint;
-        }
-
-        /// <summary>
-        /// OAuth第二步,获取token
-        /// </summary>
-        /// <param name="code"></param>
-        /// <param name="redirectUri"></param>
-        /// <returns></returns>
-        protected override async Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUri)
-        {
-            var tokenRequestParameters = new Dictionary<string, string>()
-            {
-                { "appid", Options.ClientId },
-                { "secret", Options.ClientSecret },
-                { "code", code },
-                { "grant_type", "authorization_code" },
-            };
-
-            var requestContent = new FormUrlEncodedContent(tokenRequestParameters);
-
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, Options.TokenEndpoint);
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            requestMessage.Content = requestContent;
-            var response = await Backchannel.SendAsync(requestMessage, Context.RequestAborted);
-            if (response.IsSuccessStatusCode)
-            {
-                var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
-
-                string ErrCode = payload.Value<string>("errcode");
-                string ErrMsg = payload.Value<string>("errmsg");
-
-                if (!string.IsNullOrEmpty(ErrCode) | !string.IsNullOrEmpty(ErrMsg))
-                {
-                    return OAuthTokenResponse.Failed(new Exception($"ErrCode:{ErrCode},ErrMsg:{ErrMsg}"));
-                }
-
-                var tokens = OAuthTokenResponse.Success(payload);
-
-                //借用TokenType属性保存openid
-                tokens.TokenType = payload.Value<string>("openid");
-
-                return tokens;
-            }
-            else
-            {
-                var error = "OAuth token endpoint failure";
-                return OAuthTokenResponse.Failed(new Exception(error));
-            }
-        }
-
-        ///// <summary>
-        ///// 根据回调获取登录信息
-        ///// </summary>
-        ///// <param name="identity"></param>
-        ///// <param name="properties"></param>
-        ///// <param name="tokens"></param>
-        ///// <returns></returns>
-        //protected override async Task<AuthenticationTicket> CreateTicketAsync(
-        //    ClaimsIdentity identity,
-        //    AuthenticationProperties properties,
-        //    OAuthTokenResponse tokens)
-        //{
-        //    // Get the WeChat user
-        //    var request = new HttpRequestMessage(HttpMethod.Get, Options.UserInformationEndpoint);
-        //    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
-
-        //    var response = await Backchannel.SendAsync(request, Context.RequestAborted);
-        //    if (!response.IsSuccessStatusCode)
-        //    {
-        //        throw new HttpRequestException($"An error occurred when retrieving WeChat user information ({response.StatusCode}). Please check if the authentication information is correct.");
-        //    }
-
-        //    var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
-        //    var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, payload);
-        //    context.RunClaimActions();
-        //    await Events.CreatingTicket(context);
-        //    return new AuthenticationTicket(context.Principal, context.Properties, Scheme.Name);
-
-        //    //using (var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync()))
-        //    //{
-        //    //    var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, payload.RootElement);
-        //    //    context.RunClaimActions();
-        //    //    await Events.CreatingTicket(context);
-        //    //    return new AuthenticationTicket(context.Principal, context.Properties, Scheme.Name);
-        //    //}
-        //}
-
-        /*
-         * AuthenticationProperties
-         * 认证属性是一个简单的类似于字典一样的对象，用于存取关于认证会话的各项属性。其中，最核心的是两个字典属性：
-         * Items ： Dictionary<string,string>型字典
-Parameters：Dictionary<string,object>型字典，用于在handler之间共享对象，不可序列化或者持久化
-         * 
-         * AuthenticationTicket
-         * 认证票据封装了用户身份信息和一些配套的认证属性，如过期信息、是否允许刷新等
-         * 
-         * AuthenticationResult
-         * 认证结果有三种，分别是：
-         * 没有结果：暂时无法确定最终认定结果，留待其他认证处理器程序处理。
-         * 认证成功：需要提供认证票据。
-         * 认证失败：需要指定失败消息。
-         */
 
         /// <summary>
         /// OAuth第四步，获取用户信息
@@ -240,15 +32,14 @@ Parameters：Dictionary<string,object>型字典，用于在handler之间共享对象，不可序列
         /// <returns></returns>
         protected override async Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
         {
-            var queryBuilder = new QueryBuilder()
+            var address = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, new Dictionary<string, string>
             {
-                { "access_token", tokens.AccessToken },
-                { "openid", tokens.TokenType },//在第二步中，openid被存入TokenType属性
-                { "lang", "zh_CN" }
-            };
+                ["access_token"] = tokens.AccessToken,
+                ["openid"] = tokens.Response.Value<string>("openid"),
+                ["lang"] = "zh_CN"
+            });
 
-            var infoRequest = $"{Options.UserInformationEndpoint}{queryBuilder}";
-            var response = await Backchannel.GetAsync(infoRequest, Context.RequestAborted);
+            var response = await Backchannel.GetAsync(address);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -311,38 +102,76 @@ Parameters：Dictionary<string,object>型字典，用于在handler之间共享对象，不可序列
             return new AuthenticationTicket(context.Principal, context.Properties, Scheme.Name);
         }
 
-        private void AddQueryString<T>(
-            IDictionary<string, string> queryStrings,
-            AuthenticationProperties properties,
-            string name,
-            Func<T, string> formatter,
-            T defaultValue)
+        /// <summary>
+        /// OAuth第二步,通过code获取access_token
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="redirectUri"></param>
+        /// <returns></returns>
+        protected override async Task<OAuthTokenResponse> ExchangeCodeAsync(string code, string redirectUri)
         {
-            string value = null;
-            var parameterValue = properties.GetParameter<T>(name);
-            if (parameterValue != null)
+            var address = QueryHelpers.AddQueryString(Options.TokenEndpoint, new Dictionary<string, string>()
             {
-                value = formatter(parameterValue);
-            }
-            else if (!properties.Items.TryGetValue(name, out value))
+                ["appid"] = Options.ClientId,
+                ["secret"] = Options.ClientSecret,
+                ["code"] = code,
+                ["grant_type"] = "authorization_code"
+            });
+
+            var response = await Backchannel.GetAsync(address);
+            if (!response.IsSuccessStatusCode)
             {
-                value = formatter(defaultValue);
+                Logger.LogError("An error occurred while retrieving an access token: the remote server " +
+                                "returned a {Status} response with the following payload: {Headers} {Body}.",
+                                /* Status: */ response.StatusCode,
+                                /* Headers: */ response.Headers.ToString(),
+                                /* Body: */ await response.Content.ReadAsStringAsync());
+
+                return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
 
-            // Remove the parameter from AuthenticationProperties so it won't be serialized into the state
-            properties.Items.Remove(name);
-
-            if (value != null)
+            var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
+            if (!string.IsNullOrEmpty(payload.Value<string>("errcode")))
             {
-                queryStrings[name] = value;
+                Logger.LogError("An error occurred while retrieving an access token: the remote server " +
+                                "returned a {Status} response with the following payload: {Headers} {Body}.",
+                                /* Status: */ response.StatusCode,
+                                /* Headers: */ response.Headers.ToString(),
+                                /* Body: */ await response.Content.ReadAsStringAsync());
+
+                return OAuthTokenResponse.Failed(new Exception("An error occurred while retrieving an access token."));
             }
+            return OAuthTokenResponse.Success(payload);
         }
 
-        private void AddQueryString(
-            IDictionary<string, string> queryStrings,
-            AuthenticationProperties properties,
-            string name,
-            string defaultValue = null)
-            => AddQueryString(queryStrings, properties, name, x => x, defaultValue);
+        /// <summary>
+        /// 扫码登录第一步：获取code值
+        /// 构建用户授权地址
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <param name="redirectUri"></param>
+        /// <returns></returns>
+        protected override string BuildChallengeUrl(AuthenticationProperties properties, string redirectUri)
+        {
+            // 加密OAuth状态
+            var state = Options.StateDataFormat.Protect(properties);
+
+            var queryStrings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "appid", Options.ClientId },
+                { "redirect_uri", redirectUri },
+                { "response_type", "code" },
+                { "scope", FormatScope() },
+                { "state", $"{state}{Options.StateAddition}"}
+            };
+
+            var authorizationEndpoint = QueryHelpers.AddQueryString(Options.AuthorizationEndpoint, queryStrings);
+            return authorizationEndpoint;
+        }
+
+        protected override string FormatScope()
+        {
+            return string.Join(",", Options.Scope);
+        }
     }
 }

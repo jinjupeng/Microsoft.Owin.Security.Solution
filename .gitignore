@@ -190,3 +190,8 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/.vs/Microsoft.Owin.Security.Solution/DesignTimeBuild
+/OpenApiTest/logs
+/OpenApiTest/.config
+/OpenApiTest/Properties/PublishProfiles
+/Microsoft.AspNetCore.Authentication.WeChat/Properties/PublishProfiles

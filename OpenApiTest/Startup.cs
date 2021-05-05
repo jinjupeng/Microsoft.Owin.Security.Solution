@@ -43,8 +43,6 @@ namespace OpenApiTest
                 {
                     o.ClientId = Configuration["WeChat:AppId"];
                     o.ClientSecret = Configuration["WeChat:AppSecret"];
-                    o.WeChatScope = "snsapi_login"; // Î¢ÐÅPC¶ËµÇÂ¼
-                    o.SaveTokens = true;
                     o.Events = new OAuthEvents()
                     {
                         OnRemoteFailure = HandleOnRemoteFailure
@@ -73,7 +71,7 @@ namespace OpenApiTest
             await context.Response.WriteAsync("<a href=\"/\">Home</a>");
             await context.Response.WriteAsync("</body></html>");
 
-            // context.Response.Redirect("/error?FailureMessage=" + UrlEncoder.Default.Encode(context.Failure.Message));
+            //context.Response.Redirect("/error?FailureMessage=" + UrlEncoder.Default.Encode(context.Failure.Message));
 
             context.HandleResponse();
         }
@@ -85,6 +83,9 @@ namespace OpenApiTest
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseHttpsRedirection();
+            app.UseHsts();
 
             app.UseAuthentication();
 

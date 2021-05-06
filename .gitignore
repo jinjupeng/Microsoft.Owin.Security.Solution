@@ -195,3 +195,5 @@ ModelManifest.xml
 /OpenApiTest/.config
 /OpenApiTest/Properties/PublishProfiles
 /Microsoft.AspNetCore.Authentication.WeChat/Properties/PublishProfiles
+/.idea/.idea.Microsoft.Owin.Security.Solution
+/.vs

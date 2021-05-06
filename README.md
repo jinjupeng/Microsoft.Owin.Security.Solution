@@ -24,7 +24,7 @@
 app.UseWeChatAuthentication(appId: "***",appSecret: "*****");
 ```
 
-2、在支持.NET Standard2.1框架中使用
+2、支持Asp Net Core3.0、3.1和5.0
 
 startup.cs
 

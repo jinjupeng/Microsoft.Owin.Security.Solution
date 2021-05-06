@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -38,23 +39,60 @@ namespace OpenApiTest
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(o => o.LoginPath = new PathString("/login"))
 
-                // You must first create an app with WeChat and add its ID and Secret to your user-secrets.
+                // Î¢ÐÅÉ¨ÂëµÇÂ¼
                 .AddWeChat(o =>
                 {
                     o.ClientId = Configuration["WeChat:AppId"];
                     o.ClientSecret = Configuration["WeChat:AppSecret"];
+                    o.SaveTokens = true;
                     o.Events = new OAuthEvents()
                     {
                         OnRemoteFailure = HandleOnRemoteFailure
                     };
-                });
+                })
+                // GitHubµÇÂ¼
+               .AddOAuth("GitHub", options =>
+               {
+                   options.ClientId = Configuration["GitHub:ClientId"];
+                   options.ClientSecret = Configuration["GitHub:ClientSecret"];
+                   options.CallbackPath = new PathString("/github-oauth");
+
+                   options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+                   options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+                   options.UserInformationEndpoint = "https://api.github.com/user";
+
+                   options.SaveTokens = true;
+
+                   options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                   options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                   options.ClaimActions.MapJsonKey("urn:github:login", "login");
+                   options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
+                   options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+
+                   options.Events = new OAuthEvents
+                   {
+                       OnCreatingTicket = async context =>
+                       {
+                           var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+                           request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                           request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+
+                           var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+                           response.EnsureSuccessStatusCode();
+
+                           var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+                           context.RunClaimActions(json.RootElement);
+                       }
+                   };
+               });
             services.AddControllers();
         }
 
         private async Task HandleOnRemoteFailure(RemoteFailureContext context)
         {
             context.Response.StatusCode = 500;
-            context.Response.ContentType = "text/html";
+            context.Response.ContentType = "text/html; charset=utf-8";
             await context.Response.WriteAsync("<html><body>");
             await context.Response.WriteAsync("A remote failure has occurred: <br>" +
                 context.Failure.Message.Split(Environment.NewLine).Select(s => HtmlEncoder.Default.Encode(s) + "<br>").Aggregate((s1, s2) => s1 + s2));
@@ -103,7 +141,7 @@ namespace OpenApiTest
                     }
 
                     var response = context.Response;
-                    response.ContentType = "text/html";
+                    response.ContentType = "text/html; charset=utf-8";
                     await response.WriteAsync("<html><body>");
                     await response.WriteAsync("Choose an authentication scheme: <br>");
                     var schemeProvider = context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
@@ -153,7 +191,7 @@ namespace OpenApiTest
 
                         if (string.IsNullOrEmpty(refreshToken))
                         {
-                            response.ContentType = "text/html";
+                            response.ContentType = "text/html; charset=utf-8";
                             await response.WriteAsync("<html><body>");
                             await response.WriteAsync("No refresh_token is available.<br>");
                             await response.WriteAsync("<a href=\"/\">Home</a>");
@@ -196,7 +234,7 @@ namespace OpenApiTest
                         return;
                     }
 
-                    response.ContentType = "text/html";
+                    response.ContentType = "text/html; charset=utf-8";
                     await response.WriteAsync("<html><body>");
                     await response.WriteAsync("Refresh has not been implemented for this provider.<br>");
                     await response.WriteAsync("<a href=\"/\">Home</a>");
@@ -210,7 +248,7 @@ namespace OpenApiTest
                 signoutApp.Run(async context =>
                 {
                     var response = context.Response;
-                    response.ContentType = "text/html";
+                    response.ContentType = "text/html; charset=utf-8";
                     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                     await response.WriteAsync("<html><body>");
                     await response.WriteAsync("You have been logged out. Goodbye " + context.User.Identity.Name + "<br>");
@@ -225,7 +263,7 @@ namespace OpenApiTest
                 errorApp.Run(async context =>
                 {
                     var response = context.Response;
-                    response.ContentType = "text/html";
+                    response.ContentType = "text/html; charset=utf-8";
                     await response.WriteAsync("<html><body>");
                     await response.WriteAsync("An remote failure has occurred: " + context.Request.Query["FailureMessage"] + "<br>");
                     await response.WriteAsync("<a href=\"/\">Home</a>");
@@ -260,7 +298,7 @@ namespace OpenApiTest
 
                 // Display user information
                 var response = context.Response;
-                response.ContentType = "text/html";
+                response.ContentType = "text/html; charset=utf-8";
                 await response.WriteAsync("<html><body>");
                 await response.WriteAsync("Hello " + (context.User.Identity.Name ?? "anonymous") + "<br>");
                 foreach (var claim in context.User.Claims)
@@ -292,7 +330,7 @@ namespace OpenApiTest
 
         private async Task PrintRefreshedTokensAsync(HttpResponse response, JsonDocument payload, AuthenticationProperties authProperties)
         {
-            response.ContentType = "text/html";
+            response.ContentType = "text/html; charset=utf-8";
             await response.WriteAsync("<html><body>");
             await response.WriteAsync("Refreshed.<br>");
             await response.WriteAsync(HtmlEncoder.Default.Encode(payload.RootElement.ToString()).Replace(",", ",<br>") + "<br>");

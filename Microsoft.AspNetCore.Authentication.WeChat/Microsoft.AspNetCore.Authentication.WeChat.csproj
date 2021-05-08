@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -13,7 +13,6 @@
 		<Version>3.1.1</Version>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-		<OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
@@ -22,8 +21,16 @@
 		<DocumentationFile>bin\Release\Microsoft.AspNetCore.Authentication.WeChat.xml</DocumentationFile>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="System.Text.Json" Version="4.7.2" />
-	</ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
 </Project>

@@ -261,8 +261,8 @@ namespace Microsoft.AspNetCore.Authentication.QQ
 				throw new HttpRequestException("An error occurred while retrieving user information.");
 			}
 
-			var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
-			if (payload.Value<int>("ret") != 0)
+			var user = JObject.Parse(await response.Content.ReadAsStringAsync());
+			if (user.Value<int>("ret") != 0)
 			{
 				Logger.LogError("An error occurred while retrieving the user profile: the remote server " +
 								"returned a {Status} response with the following payload: {Headers} {Body}.",
@@ -272,27 +272,93 @@ namespace Microsoft.AspNetCore.Authentication.QQ
 
 				throw new HttpRequestException("An error occurred while retrieving user information.");
 			}
+			if (!string.IsNullOrEmpty(userOpenId))
+			{
+				identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userOpenId, ClaimValueTypes.String, Options.ClaimsIssuer));
+				identity.AddClaim(new Claim("urn:qq:openid", userOpenId, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
 
-			identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, userOpenId, Options.ClaimsIssuer));
-			identity.AddClaim(new Claim(ClaimTypes.Name, QQAuthenticationHelper.GetNickname(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim(ClaimTypes.Gender, QQAuthenticationHelper.GetGender(payload), Options.ClaimsIssuer));
+			var nickname = user.Value<string>("nickname");
+			if (!string.IsNullOrEmpty(nickname))
+			{
+				identity.AddClaim(new Claim(ClaimTypes.Name, nickname, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
 
-			identity.AddClaim(new Claim("urn:qq:openid", userOpenId, Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:figureurl", QQAuthenticationHelper.GetFigureUrl(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:figureurl_1", QQAuthenticationHelper.GetFigureUrl_1(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:figureurl_2", QQAuthenticationHelper.GetFigureUrl_2(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:figureurl_qq_1", QQAuthenticationHelper.GetFigureUrl_QQ_1(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:figureurl_qq_2", QQAuthenticationHelper.GetFigureUrl_QQ_2(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:gender", QQAuthenticationHelper.GetGender(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:is_yellow_vip", QQAuthenticationHelper.GetIsYellowVip(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:vip", QQAuthenticationHelper.GetIsVip(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:yellow_vip_level", QQAuthenticationHelper.GetYellowVipLevel(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:level", QQAuthenticationHelper.GetLevel(payload), Options.ClaimsIssuer));
-			identity.AddClaim(new Claim("urn:qq:is_yellow_year_vip", QQAuthenticationHelper.GetIsYellowYearVip(payload), Options.ClaimsIssuer));
+			var sex = user.Value<string>("sex");
+			if (!string.IsNullOrEmpty(sex))
+			{
+				identity.AddClaim(new Claim("urn:qq:sex", sex, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
 
-			identity.AddClaim(new Claim("urn:qq:user_info", payload.ToString(), Options.ClaimsIssuer));
+			var figureurl = user.Value<string>("figureurl");
+			if (!string.IsNullOrEmpty(figureurl))
+			{
+				identity.AddClaim(new Claim("urn:qq:figureurl", figureurl, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
 
-			var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, payload);
+			var figureurl_1 = user.Value<string>("figureurl_1");
+			if (!string.IsNullOrEmpty(figureurl_1))
+			{
+				identity.AddClaim(new Claim("urn:qq:figureurl_1", figureurl_1, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var figureurl_2 = user.Value<string>("figureurl_2");
+			if (!string.IsNullOrEmpty(figureurl_2))
+			{
+				identity.AddClaim(new Claim("urn:qq:figureurl_2", figureurl_2, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var figureurl_qq_1 = user.Value<string>("figureurl_qq_1");
+			if (!string.IsNullOrEmpty(figureurl_qq_1))
+			{
+				identity.AddClaim(new Claim("urn:qq:figureurl_qq_1", figureurl_qq_1, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var figureurl_qq_2 = user.Value<string>("figureurl_qq_2");
+			if (!string.IsNullOrEmpty(figureurl_qq_2))
+			{
+				identity.AddClaim(new Claim("urn:qq:figureurl_qq_2", figureurl_qq_2, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var gender = user.Value<string>("gender");
+			if (!string.IsNullOrEmpty(gender))
+			{
+				identity.AddClaim(new Claim("urn:qq:gender", gender, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var is_yellow_vip = user.Value<string>("is_yellow_vip");
+			if (!string.IsNullOrEmpty(is_yellow_vip))
+			{
+				identity.AddClaim(new Claim("urn:qq:is_yellow_vip", is_yellow_vip, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var vip = user.Value<string>("vip");
+			if (!string.IsNullOrEmpty(vip))
+			{
+				identity.AddClaim(new Claim("urn:qq:vip", vip, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var yellow_vip_level = user.Value<string>("yellow_vip_level");
+			if (!string.IsNullOrEmpty(yellow_vip_level))
+			{
+				identity.AddClaim(new Claim("urn:qq:yellow_vip_level", yellow_vip_level, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var level = user.Value<string>("level");
+			if (!string.IsNullOrEmpty(level))
+			{
+				identity.AddClaim(new Claim("urn:qq:level", level, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			var is_yellow_year_vip = user.Value<string>("is_yellow_year_vip");
+			if (!string.IsNullOrEmpty(is_yellow_year_vip))
+			{
+				identity.AddClaim(new Claim("urn:qq:is_yellow_year_vip", is_yellow_year_vip, ClaimValueTypes.String, Options.ClaimsIssuer));
+			}
+
+			identity.AddClaim(new Claim("urn:qq:user_info", user.ToString(), ClaimValueTypes.String, Options.ClaimsIssuer));
+			
+			var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, user);
 			context.RunClaimActions();
 
 			await Events.CreatingTicket(context);

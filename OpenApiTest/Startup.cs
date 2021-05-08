@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.QQ;
 using Microsoft.AspNetCore.Authentication.WeChat;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -50,7 +51,18 @@ namespace OpenApiTest
                         OnRemoteFailure = HandleOnRemoteFailure
                     };
                 })
-                // GitHubµÇÂ¼
+                // qqµÇÂ¼
+                .AddQQConnect(o =>
+                {
+                    o.ClientId = Configuration["QQ:AppId"];
+                    o.ClientSecret = Configuration["QQ:AppSecret"];
+                    o.SaveTokens = true;
+                    o.Events = new OAuthEvents()
+                    {
+                        OnRemoteFailure = HandleOnRemoteFailure
+                    };
+                })
+               // GitHubµÇÂ¼
                .AddOAuth("GitHub", options =>
                {
                    options.ClientId = Configuration["GitHub:ClientId"];

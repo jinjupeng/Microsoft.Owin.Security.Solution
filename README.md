@@ -56,16 +56,37 @@ public void ConfigureServices(IServiceCollection services)
 app.UseQQConnectAuthentication(appId: "***",appSecret: "*****");
 ```
 
+2、支持Asp Net Core3.0、3.1和5.0
+
+startup.cs
+
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+    // .... others code ...
+    // config 
+    services.AddAuthentication() 
+        .AddQQConnect(o =>
+        {
+              o.ClientId = Configuration["QQ:AppId"];
+              o.ClientSecret = Configuration["QQ:AppSecret"];
+         });
+
+    // .... others code ...
+}
+```
 
 
 ## 参考链接
 
-[AspNetCore3.1_Secutiry源码解析_5_Authentication_OAuth - holdengong - 博客园 (cnblogs.com)](https://www.cnblogs.com/holdengong/p/12563558.html)
-[asp.net core 外部认证多站点模式实现 - Passingwind - 博客园 (cnblogs.com)](https://www.cnblogs.com/passingwind/p/9511022.html)
-https://mp.weixin.qq.com/s/t0PsP0hZ5HSZtitzLODkQw
-https://www.cnblogs.com/holdengong/p/12563558.html
-https://github.com/jxnkwlp/AspNetCore.AuthenticationQQ-WebChathttps://cloud.tencent.com/developer/article/1447723
-https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html
-https://www.jb51.net/article/91575.htm
-https://www.jb51.net/article/81624.htm
-https://www.jb51.net/article/72666.htm
+[AspNetCore3.1_Secutiry源码解析_5_Authentication_OAuth](https://www.cnblogs.com/holdengong/p/12563558.html)
+[asp.net core 外部认证多站点模式实现](https://www.cnblogs.com/passingwind/p/9511022.html)
+[微信扫码网页登录，redirect_uri参数错误解决方法](https://www.cnblogs.com/zmdComeOn/p/12727308.html)
+[第三方登录：微信扫码登录（OAuth2.0](https://cloud.tencent.com/developer/article/1447723)
+[Authentication — (3.3) 认证处理器的实现之RemoteAuthenticationHandler](https://mp.weixin.qq.com/s/t0PsP0hZ5HSZtitzLODkQw)
+[AspNetCore3.1_Secutiry源码解析_5_Authentication_OAuth](https://www.cnblogs.com/holdengong/p/12563558.html)
+[AspNetCore.AuthenticationQQ-WebChat](https://github.com/jxnkwlp/AspNetCore.AuthenticationQQ-WebChat)
+[微信开放平台官方教程](https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html)
+[ASP.NET Core集成微信登录](https://www.jb51.net/article/91575.htm)
+[ASP.NET实现QQ、微信、新浪微博OAuth2.0授权登录 原创](https://www.jb51.net/article/81624.htm)
+[微信开放平台之网站授权微信登录功能](https://www.jb51.net/article/72666.htm)

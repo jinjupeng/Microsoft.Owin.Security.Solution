@@ -12,6 +12,10 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.QQ\Microsoft.AspNetCore.Authentication.QQ.csproj" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://docs.gradle.com/enterprise/admin/schema/gradle-enterprise-config-schema-2.json" /></VisualStudio></ProjectExtensions>
 
 

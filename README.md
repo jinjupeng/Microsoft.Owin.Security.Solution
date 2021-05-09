@@ -9,10 +9,16 @@
  WebChat 
 
   ```
-
-  PM> Install-Package My.AspNetCore.Authentication.WeChat
-
+PM> Install-Package My.AspNetCore.Authentication.WeChat
   ```
+
+
+
+QQ
+
+```c#
+PM> Install-Package My.AspNetCore.Authentication.QQ
+```
 
 
 
@@ -43,8 +49,6 @@ public void ConfigureServices(IServiceCollection services)
     // .... others code ...
 }
 ```
-
-
 
 
 

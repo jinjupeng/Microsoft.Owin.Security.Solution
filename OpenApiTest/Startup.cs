@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.QQ;
 using Microsoft.AspNetCore.Authentication.WeChat;
+using Microsoft.AspNetCore.Authentication.WeChat.MiniProgram;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenApiTest.Handlers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -61,6 +63,11 @@ namespace OpenApiTest
                     {
                         OnRemoteFailure = HandleOnRemoteFailure
                     };
+                })
+                // Î¢ÐÅÐ¡³ÌÐòµÇÂ¼
+                .AddMiniProgram<MiniProgramLoginHandler>(o => {
+                    o.AppId = Configuration["MiniProgram:AppId"];
+                    o.Secret = Configuration["MiniProgram:AppSecret"];
                 })
                // GitHubµÇÂ¼
                .AddOAuth("GitHub", options =>

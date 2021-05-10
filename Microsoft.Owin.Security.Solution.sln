@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{B330A4B7-F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenApiTest", "OpenApiTest\OpenApiTest.csproj", "{8256D077-2109-473C-A26E-E2D438968F10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.Authentication.QQ", "Microsoft.AspNetCore.Authentication.QQ\Microsoft.AspNetCore.Authentication.QQ.csproj", "{F8E1832B-17BD-4FD2-A0F3-15BFC2186A20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.Authentication.QQ", "Microsoft.AspNetCore.Authentication.QQ\Microsoft.AspNetCore.Authentication.QQ.csproj", "{F8E1832B-17BD-4FD2-A0F3-15BFC2186A20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.Authentication.WeChat.MiniProgram", "Microsoft.AspNetCore.Authentication.WeChat.MiniProgram\Microsoft.AspNetCore.Authentication.WeChat.MiniProgram.csproj", "{F44B7277-39C9-4A5C-8157-2FAADC45A9A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{F8E1832B-17BD-4FD2-A0F3-15BFC2186A20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8E1832B-17BD-4FD2-A0F3-15BFC2186A20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8E1832B-17BD-4FD2-A0F3-15BFC2186A20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F44B7277-39C9-4A5C-8157-2FAADC45A9A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F44B7277-39C9-4A5C-8157-2FAADC45A9A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F44B7277-39C9-4A5C-8157-2FAADC45A9A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F44B7277-39C9-4A5C-8157-2FAADC45A9A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

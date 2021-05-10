@@ -64,8 +64,8 @@ namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
 
             var requestUrl = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, new Dictionary<string, string>
             {
-                { "appid", Options.AppId },
-                { "secret", Options.Secret },
+                { "appid", Options.ClientId },
+                { "secret", Options.ClientSecret },
                 { "js_code",code },
                 { "grant_type", "authorization_code" },
             });
@@ -75,16 +75,6 @@ namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
                 throw new HttpRequestException($"An error occurred when retrieving wechar mini program user information ({response.StatusCode}). Please check if the authentication information is correct and the corresponding Microsoft Account API is enabled.");
 
             var token = JsonSerializer.Deserialize<MiniProgramToken>(await response.Content.ReadAsStringAsync());
-
-            ////调试
-            //var token = new MiniProgramToken
-            //{
-            //    errcode = 0,
-            //    errmsg = "",
-            //    openid = "xxx",
-            //    session_key = "xxx",
-            //    unionid = ""
-            //};
 
             if (token.errcode != 0)
                 throw new HttpRequestException($"errcode:{token.errcode}, errmsg:{token.errmsg}");

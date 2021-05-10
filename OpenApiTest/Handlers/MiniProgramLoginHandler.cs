@@ -22,7 +22,7 @@ namespace OpenApiTest.Handlers
                 var encryptedData = context.MiniProgramUser.Input.GetProperty("encryptedData").GetString();
                 var iv = context.MiniProgramUser.Input.GetProperty("iv").GetString();
                 var miniProgramUserInfoStr = WXBizDataCrypt.AESDecrypt(encryptedData, session_key, iv);
-                var miniProgramUserInfoDict = JsonSerializer.Deserialize<Dictionary<string, string>>(miniProgramUserInfoStr);
+                var miniProgramUserInfoDict = JsonSerializer.Deserialize<Dictionary<string, object>>(miniProgramUserInfoStr);
                 foreach (var item in miniProgramUserInfoDict)
                 {
                     Console.WriteLine($"{item.Key}：{item.Value}");

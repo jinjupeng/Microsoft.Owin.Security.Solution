@@ -7,11 +7,11 @@ namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
     /*
      * 参考OAuthPostConfigureOptions<TOptions, THandler>
      * 
-     * MiniProgramAuthenticationOptions的赋值有4个地方，先后顺序依次是：
-     * 1、MiniProgramAuthenticationOptions的构造函数
+     * MiniProgramOptions的赋值有4个地方，先后顺序依次是：
+     * 1、MiniProgramOptions的构造函数
      * 2、startup中注册身份验证方案时
      * 3、MiniProgramPostConfigureOptions
-     * 4、MiniProgramAuthenticationHandler的构造函数
+     * 4、MiniProgramHandler的构造函数
      * 
      * 有些参数的初始化比较复杂，最好是在用户设置后 判断如果用户未设置时做初始化，这种操作在步骤3比较合适
      * 个人感觉步骤3有点多此一举，完全可以用步骤4代替步骤3

@@ -9,15 +9,15 @@ namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
     {
         public static AuthenticationBuilder AddMiniProgram<TLoginHandler>(this AuthenticationBuilder builder)
             where TLoginHandler : class, IMiniProgramLoginHandler
-            => builder.AddMiniProgram<TLoginHandler>(MiniProgramConsts.AuthenticationScheme, _ => { });
+            => builder.AddMiniProgram<TLoginHandler>(MiniProgramConstants.AuthenticationScheme, _ => { });
 
         public static AuthenticationBuilder AddMiniProgram<TLoginHandler>(this AuthenticationBuilder builder, Action<MiniProgramOptions> configureOptions)
             where TLoginHandler : class, IMiniProgramLoginHandler
-            => builder.AddMiniProgram<TLoginHandler>(MiniProgramConsts.AuthenticationScheme, configureOptions);
+            => builder.AddMiniProgram<TLoginHandler>(MiniProgramConstants.AuthenticationScheme, configureOptions);
 
         public static AuthenticationBuilder AddMiniProgram<TLoginHandler>(this AuthenticationBuilder builder, string authenticationScheme, Action<MiniProgramOptions> configureOptions)
             where TLoginHandler : class, IMiniProgramLoginHandler
-            => builder.AddMiniProgram<TLoginHandler>(authenticationScheme, MiniProgramConsts.AuthenticationSchemeDisplayName, configureOptions);
+            => builder.AddMiniProgram<TLoginHandler>(authenticationScheme, MiniProgramConstants.AuthenticationSchemeDisplayName, configureOptions);
 
         public static AuthenticationBuilder AddMiniProgram<TLoginHandler>(this AuthenticationBuilder builder, string authenticationScheme, string displayName, Action<MiniProgramOptions> configureOptions)
             where TLoginHandler : class, IMiniProgramLoginHandler

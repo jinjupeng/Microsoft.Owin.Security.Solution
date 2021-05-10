@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Http;
 using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 
 namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
 {
@@ -15,40 +13,35 @@ namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
     /// 3、MiniProgramAuthenticationOptions
     /// 4、MiniProgramAuthenticationHandler的构造函数
     /// </summary>
-    public class MiniProgramOptions : AuthenticationSchemeOptions
+    public class MiniProgramOptions : OAuthOptions
     {
         public MiniProgramOptions()
         {
-            //小程序端向我方服务器发起登录时的请求地址
-            CallbackPath = new PathString(MiniProgramConsts.CallbackPath);
-            //我方服务器请求微信服务器获取openid、session_key的地址
-            UserInformationEndpoint = MiniProgramConsts.UserInformationEndpoint;
-            //我方服务器请求微信服务器获取openid、session_key的超时时间，默认30秒
+            CallbackPath = new PathString(MiniProgramConstants.CallbackPath);
+            UserInformationEndpoint = MiniProgramConstants.UserInformationEndpoint;
+
+            //请求微信服务器获取openid、session_key的超时时间，默认30秒
             BackchannelTimeout = TimeSpan.FromSeconds(30);
-            //身份验证处理器执行过程中的回调函数，由调用方在startup中配置小程序登录时设置
-            Events = new MiniProgramEvent();
 
             //此处定义的是想存储到第三方登录的额外字段，必须有的字段在handler中处理
-            //ClaimActions.MapJsonKey("openid", "openid");
-            //ClaimActions.MapJsonKey("session_key", "session_key");
-            //ClaimActions.MapJsonKey("unionid", "unionid");
-
-            //ClaimActions.MapCustomJson(ClaimTypes.Email, user => user.GetString("mail") ?? user.GetString("userPrincipalName"));
+            ClaimActions.MapJsonKey("openid", "openid");
+            ClaimActions.MapJsonKey("session_key", "session_key");
+            ClaimActions.MapJsonKey("unionid", "unionid");
         }
 
         /// <summary>
-        /// 验证选项对象
+        /// 重载：验证选项对象
         /// </summary>
         public override void Validate()
         {
             //base.Validate();
 
-            if (string.IsNullOrEmpty(AppId))
+            if (string.IsNullOrEmpty(ClientId))
             {
                 throw new ArgumentException();
             }
 
-            if (string.IsNullOrEmpty(Secret))
+            if (string.IsNullOrEmpty(ClientSecret))
             {
                 throw new ArgumentException();
             }
@@ -61,40 +54,6 @@ namespace Microsoft.AspNetCore.Authentication.WeChat.MiniProgram
             {
                 throw new ArgumentException();
             }
-        }
-        /// <summary>
-        /// 向微信发起请求时使用的HttpClient，已有默认实现
-        /// </summary>
-        public HttpClient Backchannel { get; set; }
-        //public ClaimActionCollection ClaimActions { get; } = new ClaimActionCollection();
-        /// <summary>
-        /// 前端使用微信登录发起的请求地址，默认MiniProgramConsts.CallbackPath=/wechart-miniProgram-signin
-        /// </summary>
-        public PathString CallbackPath { get; set; }
-        /// <summary>
-        /// 中间件向微信发起请求以获得微信用户信息的地址，默认"https://api.weixin.qq.com/sns/jscode2session";
-        /// </summary>
-        public string UserInformationEndpoint { get; set; }
-        /// <summary>
-        /// 中间件向微信发起请求时的超时时间，默认30秒
-        /// </summary>
-        public TimeSpan BackchannelTimeout { get; set; }
-        public string AppId { get; set; }
-
-        public string Secret { get; set; }
-        /// <summary>
-        /// 处理器，也有默认值
-        /// </summary>
-        public HttpMessageHandler BackchannelHttpHandler { get; set; }
-        //public ISecureDataFormat<AuthenticationProperties> StateDataFormat { get; set; }
-
-        /// <summary>
-        /// 暂时忽略，预留回调事件
-        /// </summary>
-        public new MiniProgramEvent Events
-        {
-            get => (MiniProgramEvent)base.Events;
-            set => base.Events = value;
         }
     }
 }

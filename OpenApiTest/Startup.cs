@@ -66,8 +66,8 @@ namespace OpenApiTest
                 })
                 // Î¢ÐÅÐ¡³ÌÐòµÇÂ¼
                 .AddMiniProgram<MiniProgramLoginHandler>(o => {
-                    o.AppId = Configuration["MiniProgram:AppId"];
-                    o.Secret = Configuration["MiniProgram:AppSecret"];
+                    o.ClientId = Configuration["MiniProgram:AppId"];
+                    o.ClientSecret = Configuration["MiniProgram:AppSecret"];
                 })
                // GitHubµÇÂ¼
                .AddOAuth("GitHub", options =>

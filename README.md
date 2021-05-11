@@ -6,13 +6,11 @@
 
 \- Install nuget package
 
- WebChat 
+ WebChat
 
-  ```
+```c#
 PM> Install-Package My.AspNetCore.Authentication.WeChat
   ```
-
-
 
 QQ
 
@@ -20,7 +18,11 @@ QQ
 PM> Install-Package My.AspNetCore.Authentication.QQ
 ```
 
+MiniProgram
 
+```c#
+PM> Install-Package My.AspNetCore.Authentication.MiniProgram
+```
 
 ## 微信登录
 
@@ -50,8 +52,6 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-
-
 ## QQ登录
 
 1、在MVC5项目中使用，支持.Net Framework
@@ -80,6 +80,50 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+## 小程序登录
+
+支持Asp Net Core3.0、3.1和5.0
+
+小程序端代码
+
+```javascript
+// ...
+wx.request({
+        url: 'http://localhost:5000/signin-wechat-miniprogram',
+        data: {
+            'code': code,
+            'encryptData': "需要解密的用户敏感数据",
+            'iv': "解密算法初始向量"
+        },
+        method: 'POST',
+        header: {
+            "Content-Type": "application/json"
+        },
+        success: function (data) {
+            // 响应结果处理
+        }
+    )
+}
+
+// ...
+```
+
+startup.cs
+
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+    // .... others code ...
+    // config 
+    services.AddAuthentication() 
+        .AddMiniProgram<MiniProgramLoginHandler>(o => {
+              o.ClientId = Configuration["MiniProgram:AppId"];
+              o.ClientSecret = Configuration["MiniProgram:AppSecret"];
+        });
+
+    // .... others code ...
+}
+```
 
 ## 参考链接
 

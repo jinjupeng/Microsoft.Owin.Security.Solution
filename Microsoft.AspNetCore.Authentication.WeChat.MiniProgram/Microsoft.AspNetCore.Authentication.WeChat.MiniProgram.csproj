@@ -18,7 +18,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <DocumentationFile>bin\Release\Microsoft.AspNetCore.Authentication.WeChat.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Microsoft.AspNetCore.Authentication.WeChat.MiniProgram.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

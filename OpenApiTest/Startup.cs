@@ -69,6 +69,12 @@ namespace OpenApiTest
                     o.ClientId = Configuration["MiniProgram:AppId"];
                     o.ClientSecret = Configuration["MiniProgram:AppSecret"];
                 })
+                // ¶¤¶¤É¨ÂëµÇÂ¼
+                .AddDingTalk(o =>
+                {
+                    o.ClientId = Configuration["ExternalDingTalk:AppId"];
+                    o.ClientSecret = Configuration["ExternalDingTalk:Secret"];
+                })
                // GitHubµÇÂ¼
                .AddOAuth("GitHub", options =>
                {

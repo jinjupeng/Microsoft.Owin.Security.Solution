@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.DingTalk\Microsoft.AspNetCore.Authentication.DingTalk.csproj" />
     <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.QQ\Microsoft.AspNetCore.Authentication.QQ.csproj" />
     <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.WeChat.MiniProgram\Microsoft.AspNetCore.Authentication.WeChat.MiniProgram.csproj" />
     <ProjectReference Include="..\Microsoft.AspNetCore.Authentication.WeChat\Microsoft.AspNetCore.Authentication.WeChat.csproj" />
